@@ -1,0 +1,1586 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NextGen - Kết Nối Trực Tiếp Người Dạy & Người Học</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #0f172a;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col pb-20 md:pb-10">
+
+    <!-- ==========================================
+         HEADER CHÍNH (GỌN GÀNG, DỄ DÙNG)
+         ========================================== -->
+    <header class="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xs">
+        <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between gap-3">
+            <!-- Logo -->
+            <div onclick="switchMainTab('tutors')" class="flex items-center gap-2.5 cursor-pointer shrink-0">
+                <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white font-extrabold text-lg shadow-xs">
+                    N
+                </div>
+                <div>
+                    <div class="flex items-center gap-1.5">
+                        <span class="font-extrabold text-lg tracking-tight text-slate-900">NextGen</span>
+                        <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">0% Môi giới</span>
+                    </div>
+                    <p class="text-[11px] text-slate-500 hidden sm:block">Ai có năng lực đều dạy được • Ai muốn học đều tìm được thầy</p>
+                </div>
+            </div>
+
+            <!-- Thanh tìm kiếm nhanh -->
+            <div class="flex-1 max-w-md hidden md:block">
+                <div class="relative">
+                    <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+                    <input id="topSearchInput" oninput="syncSearchAndRender(this.value)" type="text"
+                        placeholder="Tìm môn học (Guitar, Toán, Tiếng Nhật, Vẽ, Cờ vua, Canva...)"
+                        class="w-full pl-10 pr-4 py-2 bg-slate-100 hover:bg-slate-200/60 focus:bg-white border border-transparent focus:border-blue-500 rounded-xl text-xs font-medium text-slate-800 focus:outline-none transition">
+                </div>
+            </div>
+
+            <!-- Cụm nút bên phải -->
+            <div class="flex items-center gap-2">
+                <!-- Ví của tôi -->
+                <button onclick="openWalletModal()" class="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-900 text-xs font-bold transition">
+                    <i data-lucide="wallet" class="w-4 h-4 text-amber-600"></i>
+                    <span id="headerWalletBalance">45.000đ</span>
+                </button>
+
+                <!-- Nút Đăng Tin Mới -->
+                <button onclick="openPostModal()" class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-xs transition">
+                    <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                    <span>Đăng bài</span>
+                </button>
+
+                <!-- Avatar Tài khoản -->
+                <button onclick="switchMainTab('account')" class="flex items-center gap-2 pl-1 pr-2.5 py-1 rounded-xl hover:bg-slate-100 border border-slate-200 transition">
+                    <img id="headerAvatar" src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=200&q=80"
+                        onerror="this.src='https://placehold.co/100x100/2563eb/ffffff?text=MK'"
+                        class="w-7 h-7 rounded-full object-cover" alt="User">
+                    <span id="headerShortName" class="text-xs font-bold text-slate-700 hidden sm:inline">Minh Khôi</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Thanh Chuyển Tab Chính -->
+        <div class="bg-slate-50/80 border-t border-slate-200/80">
+            <div class="max-w-7xl mx-auto px-4 flex items-center justify-between gap-2 overflow-x-auto no-scrollbar py-2">
+                <div class="flex items-center gap-1.5">
+                    <button id="tabBtnTutors" onclick="switchMainTab('tutors')" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-blue-600 text-white shadow-2xs transition flex items-center gap-1.5 shrink-0">
+                        <i data-lucide="users" class="w-3.5 h-3.5"></i>
+                        <span>Tìm Người Dạy</span>
+                        <span id="countTutorsBadge" class="px-1.5 py-0.2 bg-white/20 rounded-full text-[10px]">6</span>
+                    </button>
+                    <button id="tabBtnClasses" onclick="switchMainTab('classes')" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 transition flex items-center gap-1.5 shrink-0">
+                        <i data-lucide="book-open" class="w-3.5 h-3.5"></i>
+                        <span>Bảng Tin Cần Học</span>
+                        <span id="countClassesBadge" class="px-1.5 py-0.2 bg-slate-100 text-slate-700 rounded-full text-[10px]">4</span>
+                    </button>
+                    <button id="tabBtnSaved" onclick="switchMainTab('saved')" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 transition flex items-center gap-1.5 shrink-0">
+                        <i data-lucide="heart" class="w-3.5 h-3.5 text-rose-500"></i>
+                        <span>Đã Lưu</span>
+                        <span id="countSavedBadge" class="px-1.5 py-0.2 bg-rose-50 text-rose-600 rounded-full text-[10px]">0</span>
+                    </button>
+                    <button id="tabBtnAccount" onclick="switchMainTab('account')" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 transition flex items-center gap-1.5 shrink-0">
+                        <i data-lucide="award" class="w-3.5 h-3.5 text-amber-500"></i>
+                        <span>Hồ Sơ & Danh Hiệu</span>
+                    </button>
+                </div>
+
+                <!-- Chọn nhanh lĩnh vực -->
+                <div class="hidden lg:flex items-center gap-1">
+                    <button onclick="quickSelectSubject('all')" data-subj="all" class="subj-pill px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-800 text-white transition">Tất cả</button>
+                    <button onclick="quickSelectSubject('Năng khiếu')" data-subj="Năng khiếu" class="subj-pill px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 transition">🎸 Đàn / Vẽ / Cờ</button>
+                    <button onclick="quickSelectSubject('Ngoại ngữ')" data-subj="Ngoại ngữ" class="subj-pill px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 transition">🌍 Ngoại ngữ</button>
+                    <button onclick="quickSelectSubject('Tin học & Kỹ năng')" data-subj="Tin học & Kỹ năng" class="subj-pill px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 transition">💻 Tin học & Thiết kế</button>
+                    <button onclick="quickSelectSubject('Toán - Lý - Hóa')" data-subj="Toán - Lý - Hóa" class="subj-pill px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 transition">📐 Toán - Lý - Hóa</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ==========================================
+         BỐ CỤC CHÍNH (SIDEBAR TRÁI + NỘI DUNG PHẢI)
+         ========================================== -->
+    <main class="max-w-7xl mx-auto w-full px-4 pt-5 flex-1 grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+
+        <!-- SIDEBAR TRÁI: THÔNG TIN TÀI KHOẢN & BỘ LỌC -->
+        <aside class="lg:col-span-3 space-y-4">
+            <!-- Thẻ tóm tắt tài khoản đang đăng nhập -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-xs">
+                <div class="flex items-center gap-3">
+                    <img id="sidebarAvatar" src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=200&q=80"
+                        onerror="this.src='https://placehold.co/100x100/2563eb/ffffff?text=MK'"
+                        class="w-12 h-12 rounded-full object-cover border-2 border-blue-500 shrink-0" alt="Avatar">
+                    <div class="min-w-0">
+                        <div class="flex items-center gap-1">
+                            <h2 id="sidebarName" class="font-extrabold text-sm text-slate-900 truncate">Nguyễn Minh Khôi</h2>
+                            <i data-lucide="badge-check" class="w-4 h-4 text-blue-600 shrink-0"></i>
+                        </div>
+                        <p id="sidebarSchool" class="text-[11px] font-semibold text-blue-600 truncate">SV Trường Đại học Đông Á</p>
+                        <p class="text-[10px] text-slate-400">Đà Nẵng & Online Toàn quốc</p>
+                    </div>
+                </div>
+
+                <!-- Danh hiệu đã đạt được -->
+                <div class="mt-3 pt-3 border-t border-slate-100">
+                    <div class="flex items-center justify-between mb-1.5">
+                        <span class="text-[10px] font-bold text-slate-400 uppercase">Danh hiệu của bạn</span>
+                        <button onclick="switchMainTab('account')" class="text-[10px] font-bold text-blue-600 hover:underline">+ Thêm minh chứng</button>
+                    </div>
+                    <div id="sidebarBadgesList" class="flex flex-wrap gap-1">
+                        <!-- Render bằng JS -->
+                    </div>
+                </div>
+
+                <!-- Số dư Ví & Lượt đẩy bài -->
+                <div class="mt-3 pt-3 border-t border-slate-100 grid grid-cols-2 gap-2 text-center">
+                    <div class="bg-slate-50 p-2 rounded-xl border border-slate-100">
+                        <div class="text-[10px] text-slate-500">Số dư Ví</div>
+                        <div id="sidebarWalletBalance" class="text-xs font-extrabold text-slate-800 mt-0.5">45.000đ</div>
+                    </div>
+                    <div class="bg-amber-50/70 p-2 rounded-xl border border-amber-200/60">
+                        <div class="text-[10px] text-amber-800">Đẩy bài miễn phí</div>
+                        <div class="text-xs font-extrabold text-amber-700 mt-0.5"><span id="freeBoostCountText">2</span> lượt</div>
+                    </div>
+                </div>
+
+                <!-- 2 nút hành động nhanh -->
+                <div class="mt-3 pt-3 border-t border-slate-100 grid grid-cols-2 gap-1.5">
+                    <button onclick="openPostModalWithType('tutor')" class="py-2 px-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold transition text-center">
+                        + Đăng bài dạy
+                    </button>
+                    <button onclick="openPostModalWithType('class')" class="py-2 px-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold transition text-center">
+                        + Tìm người dạy
+                    </button>
+                </div>
+            </div>
+
+            <!-- Hộp Bộ Lọc Toàn Quốc -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-xs space-y-3">
+                <div class="flex items-center justify-between">
+                    <h3 class="font-bold text-xs uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                        <i data-lucide="sliders-horizontal" class="w-3.5 h-3.5 text-blue-600"></i>
+                        Bộ lọc tìm kiếm
+                    </h3>
+                    <button onclick="resetAllFilters()" class="text-[11px] text-blue-600 hover:underline font-semibold">
+                        Đặt lại
+                    </button>
+                </div>
+
+                <!-- Ô tìm kiếm cho mobile -->
+                <div class="md:hidden">
+                    <input id="mobileSearchInput" oninput="syncSearchAndRender(this.value)" type="text"
+                        placeholder="Nhập môn học, tên..."
+                        class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs">
+                </div>
+
+                <!-- Khu vực / Tỉnh thành -->
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-600 mb-1">Tỉnh / Thành phố</label>
+                    <select id="filterCity" onchange="renderActiveFeed()" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="all">🌍 Toàn quốc (Tất cả)</option>
+                        <option value="Online">💻 Học Online Toàn quốc</option>
+                        <option value="Đà Nẵng">📍 TP. Đà Nẵng</option>
+                        <option value="TP.HCM">📍 TP. Hồ Chí Minh</option>
+                        <option value="Hà Nội">📍 TP. Hà Nội</option>
+                        <option value="Cần Thơ">📍 TP. Cần Thơ</option>
+                        <option value="Hải Phòng">📍 TP. Hải Phòng</option>
+                        <option value="Khác">📍 Tỉnh / Thành khác</option>
+                    </select>
+                </div>
+
+                <!-- Quận / Huyện -->
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-600 mb-1">Quận / Huyện cụ thể</label>
+                    <input id="filterDistrictInput" oninput="renderActiveFeed()" type="text" placeholder="VD: Hải Châu, Quận 7, Cầu Giấy..."
+                        class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <!-- Nhóm môn / Đối tượng -->
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-600 mb-1">Nhu cầu học</label>
+                    <select id="filterGrade" onchange="renderActiveFeed()" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="all">Mọi lứa tuổi & Trình độ</option>
+                        <option value="Năng khiếu">🎸 Năng khiếu (Đàn, Vẽ, Cờ...)</option>
+                        <option value="Kỹ năng & Đi làm">💼 Sinh viên & Người đi làm</option>
+                        <option value="THPT & Đại học">🎓 Cấp 3 & Luyện thi</option>
+                        <option value="THCS">📘 Cấp 2 (Lớp 6 - 9)</option>
+                        <option value="Tiểu học">🌱 Trẻ em & Tiểu học</option>
+                    </select>
+                </div>
+
+                <!-- Học phí -->
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-600 mb-1">Mức học phí / buổi</label>
+                    <select id="filterPrice" onchange="renderActiveFeed()" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="all">Tất cả mức giá</option>
+                        <option value="low">Dưới 160.000đ/buổi</option>
+                        <option value="mid">160.000đ - 200.000đ/buổi</option>
+                        <option value="high">Trên 200.000đ/buổi</option>
+                    </select>
+                </div>
+            </div>
+        </aside>
+
+        <!-- KHU VỰC NỘI DUNG CHÍNH (9 CỘT) -->
+        <section class="lg:col-span-9 space-y-4">
+
+            <!-- VIEW 1: DANH SÁCH BÀI ĐĂNG (NGƯỜI DẠY / CẦN HỌC / ĐÃ LƯU) -->
+            <div id="feedSection" class="space-y-4">
+                <!-- Banner thông điệp ngắn gọn -->
+                <div class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-4 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+                    <div class="space-y-0.5">
+                        <div class="inline-flex items-center gap-1.5 text-[11px] font-bold bg-white/20 px-2.5 py-0.5 rounded-full">
+                            <span>✨ Kết nối trực tiếp • Không thu cọc • Không giới hạn bằng cấp</span>
+                        </div>
+                        <h1 id="feedHeadline" class="text-base sm:text-lg font-extrabold">Khám phá Người dạy có hình ảnh & danh hiệu thực tế</h1>
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0">
+                        <button onclick="payBoost15k()" class="px-3 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-xs transition shadow-xs">
+                            ⚡ Đẩy bài lên Top (15k)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Thanh trạng thái số lượng kết quả -->
+                <div class="flex items-center justify-between">
+                    <p id="feedResultCount" class="text-xs font-bold text-slate-600">Đang hiển thị kết quả</p>
+                    <div class="flex items-center gap-1.5 text-[11px] text-slate-500">
+                        <span>Bấm vào ảnh bất kỳ để xem phóng to</span>
+                    </div>
+                </div>
+
+                <!-- Lưới hiển thị thẻ bài đăng (2 cột rộng rãi, nhiều hình ảnh, ít chữ) -->
+                <div id="cardsGridContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Render bằng JS -->
+                </div>
+            </div>
+
+            <!-- VIEW 2: TRANG QUẢN LÝ HỒ SƠ & DANH HIỆU CÁ NHÂN -->
+            <div id="accountSection" class="hidden space-y-4">
+                <!-- Thẻ Hồ sơ chính -->
+                <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div class="flex items-center gap-4">
+                        <div class="relative">
+                            <img id="accPageAvatar" src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=200&q=80"
+                                onerror="this.src='https://placehold.co/100x100/2563eb/ffffff?text=MK'"
+                                class="w-16 h-16 rounded-full object-cover border-2 border-blue-600" alt="Avatar">
+                            <label class="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-slate-900 text-white flex items-center justify-center cursor-pointer shadow" title="Đổi ảnh đại diện">
+                                <i data-lucide="camera" class="w-3.5 h-3.5"></i>
+                                <input type="file" accept="image/*" onchange="handleAvatarChange(event)" class="hidden">
+                            </label>
+                        </div>
+                        <div>
+                            <div class="flex flex-wrap items-center gap-2">
+                                <h2 id="accPageName" class="text-lg font-extrabold text-slate-900">Nguyễn Minh Khôi</h2>
+                                <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">✓ Đã xác thực</span>
+                            </div>
+                            <p id="accPageSubInfo" class="text-xs text-slate-500 mt-0.5">Trường Đại học Đông Á • SĐT/Zalo: 0905.882.194</p>
+                        </div>
+                    </div>
+                    <button onclick="openWalletModal()" class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs transition shrink-0">
+                        + Nạp Ví / Mua lượt đẩy bài
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <!-- Cột 1: Gửi minh chứng tự do để nhận Danh hiệu -->
+                    <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-3.5">
+                        <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                            <div>
+                                <h3 class="font-bold text-sm text-slate-900">🏅 Danh hiệu & Minh chứng năng lực</h3>
+                                <p class="text-[11px] text-slate-500">Không bắt buộc bằng cấp — Có giải thưởng, điểm số hay tác phẩm gì thì đăng lên để nhận Danh hiệu đó!</p>
+                            </div>
+                        </div>
+
+                        <!-- Danh sách minh chứng đã đăng -->
+                        <div id="userProofGallery" class="grid grid-cols-2 gap-2.5">
+                            <!-- Render bằng JS -->
+                        </div>
+
+                        <!-- Thêm danh hiệu / ảnh minh chứng tùy ý -->
+                        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-2.5">
+                            <div class="text-xs font-bold text-slate-800">+ Đăng thêm minh chứng để nhận Danh hiệu mới:</div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                <select id="newProofBadgeType" class="px-2.5 py-2 bg-white border border-slate-200 rounded-lg text-xs font-semibold">
+                                    <option value="🏆 Đạt Giải Thưởng">🏆 Đạt Giải thưởng cuộc thi</option>
+                                    <option value="📊 Học Lực Giỏi">📊 Bảng điểm Giỏi / Điểm thi cao</option>
+                                    <option value="🎨 Năng Khiếu Thực Tế">🎨 Có tác phẩm Đàn / Vẽ / Cờ...</option>
+                                    <option value="🌐 Chứng Chỉ Quốc Tế">🌐 Chứng chỉ Ngoại ngữ / Tin học</option>
+                                    <option value="🎓 SV ĐH Đông Á">🎓 Thẻ Sinh viên / Bằng cấp</option>
+                                </select>
+                                <input id="newProofTitleInput" type="text" placeholder="Ghi chú (VD: Giải Nhì Guitar, IELTS 7.0...)" class="px-2.5 py-2 bg-white border border-slate-200 rounded-lg text-xs">
+                            </div>
+                            <div class="flex flex-wrap items-center gap-2">
+                                <label class="flex-1 cursor-pointer bg-white border border-dashed border-blue-300 hover:bg-blue-50 text-blue-600 rounded-lg px-3 py-2 text-xs font-bold text-center transition">
+                                    📷 Tải ảnh bất kỳ từ máy (Tùy chọn)
+                                    <input type="file" accept="image/*" onchange="handleAccountProofUpload(event)" class="hidden">
+                                </label>
+                                <button onclick="addQuickSampleProof()" type="button" class="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold transition">
+                                    + Nhận Danh Hiệu Ngay
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cột 2: Chỉnh sửa thông tin & Quản lý bài đã đăng -->
+                    <div class="space-y-4">
+                        <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-3">
+                            <h3 class="font-bold text-sm text-slate-900 border-b border-slate-100 pb-2">✏️ Thông tin liên hệ của bạn</h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+                                <div>
+                                    <label class="font-semibold text-slate-600 block mb-1">Họ và tên</label>
+                                    <input id="profileInputName" type="text" class="w-full px-3 py-2 border border-slate-200 rounded-xl">
+                                </div>
+                                <div>
+                                    <label class="font-semibold text-slate-600 block mb-1">Số điện thoại / Zalo</label>
+                                    <input id="profileInputPhone" type="text" class="w-full px-3 py-2 border border-slate-200 rounded-xl">
+                                </div>
+                                <div>
+                                    <label class="font-semibold text-slate-600 block mb-1">Trường học / Chuyên môn</label>
+                                    <input id="profileInputSchool" type="text" class="w-full px-3 py-2 border border-slate-200 rounded-xl">
+                                </div>
+                                <div>
+                                    <label class="font-semibold text-slate-600 block mb-1">Khu vực dạy / học</label>
+                                    <input id="profileInputArea" type="text" class="w-full px-3 py-2 border border-slate-200 rounded-xl">
+                                </div>
+                            </div>
+                            <button onclick="saveUserProfile()" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition">
+                                Lưu cập nhật
+                            </button>
+                        </div>
+
+                        <!-- Các bài đã đăng của tôi -->
+                        <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-3">
+                            <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                                <h3 class="font-bold text-sm text-slate-900">📌 Bài đăng của tôi</h3>
+                                <button onclick="openPostModal()" class="text-xs font-bold text-blue-600 hover:underline">+ Đăng bài mới</button>
+                            </div>
+                            <div id="myPostsContainer" class="space-y-2.5">
+                                <!-- Render bằng JS -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- ==========================================
+         THANH ĐIỀU HƯỚNG DƯỚI ĐÁY CHO ĐIỆN THOẠI
+         ========================================== -->
+    <nav class="md:hidden fixed bottom-0 inset-x-0 bg-white border-t border-slate-200 z-30 grid grid-cols-4 py-1.5 px-2 text-center shadow-lg">
+        <button onclick="switchMainTab('tutors')" class="flex flex-col items-center justify-center py-1 text-blue-600 font-bold text-[11px]">
+            <i data-lucide="users" class="w-4 h-4 mb-0.5"></i>
+            <span>Người dạy</span>
+        </button>
+        <button onclick="switchMainTab('classes')" class="flex flex-col items-center justify-center py-1 text-slate-600 font-semibold text-[11px]">
+            <i data-lucide="book-open" class="w-4 h-4 mb-0.5"></i>
+            <span>Cần học</span>
+        </button>
+        <button onclick="openPostModal()" class="flex flex-col items-center justify-center py-1 text-emerald-600 font-bold text-[11px]">
+            <i data-lucide="plus-circle" class="w-4 h-4 mb-0.5"></i>
+            <span>Đăng bài</span>
+        </button>
+        <button onclick="switchMainTab('account')" class="flex flex-col items-center justify-center py-1 text-slate-600 font-semibold text-[11px]">
+            <i data-lucide="user-check" class="w-4 h-4 mb-0.5"></i>
+            <span>Tài khoản</span>
+        </button>
+    </nav>
+
+    <!-- ==========================================
+         MODAL 1: XEM CHI TIẾT & LIÊN HỆ TRỰC TIẾP
+         ========================================== -->
+    <div id="detailModal" onclick="closeDetailModal()" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+        <div onclick="event.stopPropagation()" class="bg-white w-full max-w-lg rounded-2xl p-5 shadow-xl max-h-[90vh] overflow-y-auto space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <span id="detailModalBadge" class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700">Thông tin chi tiết</span>
+                <button onclick="closeDetailModal()" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600 font-bold">✕</button>
+            </div>
+            <div id="detailModalBody" class="space-y-4">
+                <!-- Render bằng JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         MODAL 2: ĐĂNG BÀI MỚI (ẢNH TÙY CHỌN - KHÔNG BẮT BUỘC)
+         ========================================== -->
+    <div id="postModal" onclick="closePostModal()" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+        <div onclick="event.stopPropagation()" class="bg-white w-full max-w-lg rounded-2xl p-5 shadow-xl max-h-[92vh] overflow-y-auto space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div>
+                    <h3 class="text-base font-extrabold text-slate-900">Đăng bài mới</h3>
+                    <p class="text-[11px] text-slate-500">Ảnh đính kèm hoàn toàn tự do (thích đăng ảnh gì cũng được hoặc bỏ trống)</p>
+                </div>
+                <button onclick="closePostModal()" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600 font-bold">✕</button>
+            </div>
+
+            <form onsubmit="submitNewListing(event)" class="space-y-3 text-xs">
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Loại bài đăng</label>
+                    <select id="postTypeSelect" onchange="togglePostTypeUI()" class="w-full px-3 py-2.5 bg-blue-50 border border-blue-200 rounded-xl font-bold text-blue-950">
+                        <option value="tutor">🎓 Tôi muốn Đăng bài Nhận Dạy</option>
+                        <option value="class">🔍 Tôi muốn Đăng tin Tìm Người Dạy</option>
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">Tên hiển thị</label>
+                        <input id="postName" required type="text" placeholder="VD: Nguyễn Minh Khôi" class="w-full px-3 py-2 border border-slate-200 rounded-xl">
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">Số điện thoại / Zalo</label>
+                        <input id="postPhone" required type="text" placeholder="VD: 0905.882.194" class="w-full px-3 py-2 border border-slate-200 rounded-xl">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">Môn / Kỹ năng muốn dạy hoặc học</label>
+                        <input id="postSchoolOrSchedule" required type="text" placeholder="VD: Đàn Guitar, Tiếng Nhật, Toán 9, Thiết kế..." class="w-full px-3 py-2 border border-slate-200 rounded-xl">
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">Điểm mạnh / Yêu cầu ngắn gọn</label>
+                        <input id="postDesc" required type="text" placeholder="VD: Đạt giải Nhì Tin học / Kèm thực hành 1-1" class="w-full px-3 py-2 border border-slate-200 rounded-xl">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">Nhóm môn</label>
+                        <select id="postSubject" class="w-full px-3 py-2 border border-slate-200 rounded-xl bg-white">
+                            <option value="Năng khiếu">🎸 Năng khiếu (Đàn, Vẽ, Cờ...)</option>
+                            <option value="Ngoại ngữ">🌍 Ngoại ngữ</option>
+                            <option value="Tin học & Kỹ năng">💻 Tin học & Kỹ năng</option>
+                            <option value="Toán - Lý - Hóa">📐 Toán - Lý - Hóa</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">Tỉnh / Thành phố</label>
+                        <select id="postCity" class="w-full px-3 py-2 border border-slate-200 rounded-xl bg-white">
+                            <option value="Đà Nẵng">TP. Đà Nẵng</option>
+                            <option value="TP.HCM">TP. Hồ Chí Minh</option>
+                            <option value="Hà Nội">TP. Hà Nội</option>
+                            <option value="Online">Online Toàn quốc</option>
+                            <option value="Cần Thơ">TP. Cần Thơ</option>
+                            <option value="Hải Phòng">TP. Hải Phòng</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">Học phí / buổi</label>
+                        <select id="postPrice" class="w-full px-3 py-2 border border-slate-200 rounded-xl bg-white">
+                            <option value="130000">130.000đ/buổi</option>
+                            <option value="150000" selected>150.000đ/buổi</option>
+                            <option value="180000">180.000đ/buổi</option>
+                            <option value="220000">220.000đ/buổi</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Quận / Huyện cụ thể</label>
+                    <input id="postAreaDetail" required type="text" placeholder="VD: Hải Châu, Quận 7, Cầu Giấy hoặc Học qua Zoom..." class="w-full px-3 py-2 border border-slate-200 rounded-xl">
+                </div>
+
+                <!-- TÙY CHỌN ĐÍNH KÈM HÌNH ẢNH TỰ DO (KHÔNG BẮT BUỘC) -->
+                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="font-bold text-slate-800">📷 Đính kèm ảnh vào bài đăng (Tùy chọn - Không bắt buộc)</span>
+                        <button type="button" onclick="clearOptionalPostPhotos()" class="text-[11px] text-rose-600 hover:underline font-semibold">Không dùng ảnh</button>
+                    </div>
+                    <p class="text-[11px] text-slate-500">Bạn thích đăng ảnh bản thân, ảnh tác phẩm, giấy khen hay để trống đều được.</p>
+
+                    <div id="optionalPhotosPreviewRow" class="flex items-center gap-2 overflow-x-auto py-1">
+                        <!-- Hiển thị ảnh người dùng chọn hoặc ảnh mẫu -->
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-2">
+                        <label class="cursor-pointer px-3 py-1.5 rounded-lg bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 font-bold text-[11px] transition">
+                            + Tải ảnh từ máy lên
+                            <input type="file" accept="image/*" multiple onchange="handleOptionalPostPhotoUpload(event)" class="hidden">
+                        </label>
+                        <button type="button" onclick="useRandomSamplePhotos()" class="px-3 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-[11px] transition">
+                            🎲 Lấy đại ảnh mẫu
+                        </button>
+                    </div>
+                </div>
+
+                <!-- TÙY CHỌN GẮN DANH HIỆU (NẾU CÓ MINH CHỨNG) -->
+                <div id="badgeSelectorSection" class="bg-amber-50/70 border border-amber-200 rounded-xl p-3 space-y-2">
+                    <span class="font-bold text-amber-950 block">🏅 Chọn Danh hiệu bạn muốn gắn lên bài (Tùy chọn):</span>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                        <label class="flex items-center gap-2 bg-white px-2.5 py-1.5 rounded-lg border border-amber-200 cursor-pointer">
+                            <input type="checkbox" name="earnedBadges" value="🏆 Đạt Giải Thưởng" checked class="rounded text-amber-600">
+                            <span class="font-semibold text-slate-800">🏆 Đạt giải thưởng / Huy chương</span>
+                        </label>
+                        <label class="flex items-center gap-2 bg-white px-2.5 py-1.5 rounded-lg border border-amber-200 cursor-pointer">
+                            <input type="checkbox" name="earnedBadges" value="📊 Học Lực Giỏi" class="rounded text-amber-600">
+                            <span class="font-semibold text-slate-800">📊 Bảng điểm Giỏi / Điểm thi cao</span>
+                        </label>
+                        <label class="flex items-center gap-2 bg-white px-2.5 py-1.5 rounded-lg border border-amber-200 cursor-pointer">
+                            <input type="checkbox" name="earnedBadges" value="🎨 Năng Khiếu Thực Tế" class="rounded text-amber-600">
+                            <span class="font-semibold text-slate-800">🎨 Năng khiếu thực tế (Đàn, Vẽ...)</span>
+                        </label>
+                        <label class="flex items-center gap-2 bg-white px-2.5 py-1.5 rounded-lg border border-amber-200 cursor-pointer">
+                            <input type="checkbox" name="earnedBadges" value="🌐 Có Chứng Chỉ" class="rounded text-amber-600">
+                            <span class="font-semibold text-slate-800">🌐 Chứng chỉ Ngoại ngữ / Tin học</span>
+                        </label>
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-xs transition">
+                    Đăng bài ngay
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         MODAL 3: VÍ & ĐẨY BÀI LÊN TOP (15.000Đ)
+         ========================================== -->
+    <div id="walletModal" onclick="closeWalletModal()" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+        <div onclick="event.stopPropagation()" class="bg-white w-full max-w-md rounded-2xl p-5 shadow-xl space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 class="text-base font-extrabold text-slate-900">Ví NextGen & Đẩy Bài Lên Top</h3>
+                <button onclick="closeWalletModal()" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600 font-bold">✕</button>
+            </div>
+            <div class="bg-gradient-to-r from-slate-900 to-slate-800 text-white p-4 rounded-2xl flex items-center justify-between">
+                <div>
+                    <span class="text-[11px] text-slate-300">Số dư hiện tại</span>
+                    <div id="modalWalletBalance" class="text-xl font-extrabold text-amber-400">45.000đ</div>
+                </div>
+                <button onclick="topUpWallet50k()" class="px-3.5 py-2 bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-xs rounded-xl transition">
+                    + Nạp nhanh 50.000đ
+                </button>
+            </div>
+            <div class="space-y-2 text-xs">
+                <div class="p-3 rounded-xl border border-slate-200 flex items-center justify-between">
+                    <div>
+                        <div class="font-bold text-slate-900">⚡ Đẩy bài lên đầu trang (15.000đ/lượt)</div>
+                        <div class="text-[11px] text-slate-500">Không thu phí hoa hồng nhận lớp</div>
+                    </div>
+                    <button onclick="payBoost15k()" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg">Đẩy ngay</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         MODAL 4: LIGHTBOX PHÓNG TO ẢNH BẤT KỲ
+         ========================================== -->
+    <div id="proofLightboxModal" onclick="closeProofLightbox()" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+        <div onclick="event.stopPropagation()" class="bg-white w-full max-w-lg rounded-2xl overflow-hidden shadow-2xl">
+            <div class="relative bg-slate-900 h-72 sm:h-80 flex items-center justify-center">
+                <img id="lightboxImg" src="" alt="Preview" class="max-h-full max-w-full object-contain">
+                <button onclick="closeProofLightbox()" class="absolute top-3 right-3 w-8 h-8 rounded-full bg-slate-900/80 text-white flex items-center justify-center hover:bg-slate-800">✕</button>
+            </div>
+            <div class="p-4 flex items-center justify-between gap-3">
+                <div>
+                    <span id="lightboxBadge" class="inline-block text-[11px] font-bold bg-blue-50 text-blue-700 px-2.5 py-0.5 rounded-md mb-1">Hình ảnh đính kèm</span>
+                    <h4 id="lightboxTitle" class="text-sm font-extrabold text-slate-900">Chi tiết hình ảnh</h4>
+                </div>
+                <button onclick="closeProofLightbox()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl">Đóng</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- THÔNG BÁO TOAST NHỎ GỌN -->
+    <div id="toastBox" class="hidden fixed bottom-20 md:bottom-6 right-4 z-50 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-lg text-xs font-bold flex items-center gap-2 max-w-sm">
+        <span id="toastMessage">Thông báo</span>
+    </div>
+
+    <!-- ==========================================
+         JAVASCRIPT XỬ LÝ TOÀN BỘ TƯƠNG TÁC
+         ========================================== -->
+    <script>
+        // Trạng thái chung
+        let currentTab = 'tutors'; // 'tutors' | 'classes' | 'saved' | 'account'
+        let selectedSubject = 'all';
+        let searchKeyword = '';
+        let walletBalance = 45000;
+        let freeBoostLeft = 2;
+        let savedIds = [];
+
+        // Kho ảnh mẫu ngẫu nhiên để người dùng bấm "Lấy đại ảnh mẫu" hoặc tự tải ảnh lên
+        const samplePhotosPool = [
+            'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=600&q=80',
+            'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=600&q=80',
+            'https://images.unsplash.com/photo-1513364776144-60967b0f800f?auto=format&fit=crop&w=600&q=80',
+            'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=600&q=80',
+            'https://images.unsplash.com/photo-1589330694653-ded6df03f754?auto=format&fit=crop&w=600&q=80'
+        ];
+        let tempPostPhotos = [samplePhotosPool[0], samplePhotosPool[4]];
+
+        // 1. Tài khoản người dùng hiện tại
+        const userAccount = {
+            name: 'Nguyễn Minh Khôi',
+            shortName: 'Minh Khôi',
+            phone: '0905.882.194',
+            school: 'SV Trường Đại học Đông Á',
+            area: 'Đà Nẵng & Online Toàn quốc',
+            subInfo: 'Trường Đại học Đông Á • SĐT/Zalo: 0905.882.194',
+            avatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=250&q=80',
+            proofs: [
+                {
+                    badge: '🏆 Giải Nhì Tin Học',
+                    title: 'Giải Nhì Sáng tạo Phần mềm & Web',
+                    img: 'https://images.unsplash.com/photo-1589330694653-ded6df03f754?auto=format&fit=crop&w=600&q=80'
+                },
+                {
+                    badge: '🌐 IELTS 7.0 & MOS',
+                    title: 'Chứng chỉ IELTS 7.0 & Tin học MOS',
+                    img: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=600&q=80'
+                },
+                {
+                    badge: '🎓 SV ĐH Đông Á',
+                    title: 'Sinh viên Khoa CNTT - ĐH Đông Á',
+                    img: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=600&q=80'
+                }
+            ]
+        };
+
+        // 2. Danh sách Người dạy (Ảnh do người đăng tự chọn đính kèm 1 ảnh, 2 ảnh hoặc không ảnh đều hiển thị đẹp)
+        const tutorsList = [
+            {
+                id: 'ng1',
+                name: 'Nguyễn Minh Khôi',
+                credentials: 'SV Trường Đại học Đông Á',
+                avatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=250&q=80',
+                photos: [
+                    { url: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=600&q=80', label: 'Ảnh hướng dẫn thực hành' },
+                    { url: 'https://images.unsplash.com/photo-1589330694653-ded6df03f754?auto=format&fit=crop&w=600&q=80', label: 'Minh chứng Giải Nhì Tin học' }
+                ],
+                earnedBadges: ['🏆 Giải Nhì Tin Học', '🌐 IELTS 7.0 & MOS', '🎓 SV ĐH Đông Á'],
+                subjects: ['Tin học & Kỹ năng', 'Ngoại ngữ'],
+                grades: ['Kỹ năng & Đi làm', 'THCS', 'THPT & Đại học'],
+                teachSummary: 'Tin học văn phòng, Thiết kế Canva & Tiếng Anh giao tiếp',
+                city: 'Đà Nẵng',
+                supportOnline: true,
+                areaDetail: 'Hải Châu, Đà Nẵng & Online',
+                price: 150000,
+                priceText: '150.000đ/buổi',
+                isTopBoosted: true,
+                phone: '0905.882.194',
+                isMine: true,
+                desc: 'Kèm thực hành 1-1 dễ hiểu cho người mới bắt đầu.'
+            },
+            {
+                id: 'ng2',
+                name: 'Trần Hoàng Nam',
+                credentials: 'Nhạc công Acoustic • Dạy Đàn tự do',
+                avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=250&q=80',
+                photos: [
+                    { url: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=600&q=80', label: 'Lớp tập Guitar đệm hát' },
+                    { url: 'https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?auto=format&fit=crop&w=600&q=80', label: 'Giải Nhất Festival Guitar' }
+                ],
+                earnedBadges: ['🏆 Giải Nhất Festival Guitar', '🎨 Năng Khiếu Thực Tế'],
+                subjects: ['Năng khiếu'],
+                grades: ['Năng khiếu', 'Kỹ năng & Đi làm', 'Tiểu học'],
+                teachSummary: 'Đàn Guitar đệm hát, Piano & Ukulele cơ bản',
+                city: 'TP.HCM',
+                supportOnline: true,
+                areaDetail: 'Bình Thạnh, Quận 1 (TP.HCM) & Online',
+                price: 180000,
+                priceText: '180.000đ/buổi',
+                isTopBoosted: true,
+                phone: '0938.412.609',
+                isMine: false,
+                desc: 'Tự đệm hát được bài yêu thích sau 8 buổi thực hành.'
+            },
+            {
+                id: 'ng3',
+                name: 'Lê Ngọc Bảo Trân',
+                credentials: 'SV Ngôn ngữ Nhật - Hàn • ĐH Đông Á',
+                avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=250&q=80',
+                photos: [
+                    { url: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=600&q=80', label: 'CLB Giao lưu Nhật - Hàn' },
+                    { url: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=600&q=80', label: 'Chứng chỉ JLPT N2' }
+                ],
+                earnedBadges: ['🌐 Chứng Chỉ JLPT N2', '📊 Học Bổng Xuất Sắc', '🎓 SV ĐH Đông Á'],
+                subjects: ['Ngoại ngữ'],
+                grades: ['Kỹ năng & Đi làm', 'THPT & Đại học'],
+                teachSummary: 'Tiếng Nhật JLPT (N5 - N3) & Tiếng Hàn giao tiếp',
+                city: 'Đà Nẵng',
+                supportOnline: true,
+                areaDetail: 'Đà Nẵng & Online Toàn quốc',
+                price: 160000,
+                priceText: '160.000đ/buổi',
+                isTopBoosted: false,
+                phone: '0914.773.205',
+                isMine: false,
+                desc: 'Luyện giao tiếp phản xạ cho người đi làm và du học.'
+            },
+            {
+                id: 'ng4',
+                name: 'Vũ Minh Quân',
+                credentials: 'Họa sĩ Minh họa Tự do & Digital Art',
+                avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=250&q=80',
+                photos: [
+                    { url: 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?auto=format&fit=crop&w=600&q=80', label: 'Hướng dẫn vẽ màu nước' },
+                    { url: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=600&q=80', label: 'Tác phẩm đạt giải Mỹ thuật' }
+                ],
+                earnedBadges: ['🎨 Năng Khiếu Thực Tế', '🏆 Giải Mỹ Thuật Trẻ'],
+                subjects: ['Năng khiếu', 'Tin học & Kỹ năng'],
+                grades: ['Năng khiếu', 'Kỹ năng & Đi làm'],
+                teachSummary: 'Vẽ Màu nước, Phác thảo chì & Digital Painting',
+                city: 'Hà Nội',
+                supportOnline: true,
+                areaDetail: 'Cầu Giấy (Hà Nội) & Online',
+                price: 200000,
+                priceText: '200.000đ/buổi',
+                isTopBoosted: false,
+                phone: '0987.651.339',
+                isMine: false,
+                desc: 'Dạy vẽ thư giãn cho mọi lứa tuổi và luyện thi khối V, H.'
+            },
+            {
+                id: 'ng5',
+                name: 'Đỗ Đức Anh',
+                credentials: 'Chuyên kèm Toán - Lý - Hóa',
+                avatar: 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&w=250&q=80',
+                photos: [
+                    { url: 'https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?auto=format&fit=crop&w=600&q=80', label: 'Buổi kèm nhóm nhỏ' },
+                    { url: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=600&q=80', label: 'Điểm thi ĐH 28.25đ' }
+                ],
+                earnedBadges: ['📊 Điểm ĐH 28.25đ', '🏆 Giải Nhì HSG Vật Lý'],
+                subjects: ['Toán - Lý - Hóa'],
+                grades: ['THCS', 'THPT & Đại học'],
+                teachSummary: 'Toán, Vật Lý, Hóa học Lớp 8 - 12 & Luyện thi ĐH',
+                city: 'TP.HCM',
+                supportOnline: true,
+                areaDetail: 'Quận 7, Thủ Đức (TP.HCM) & Online',
+                price: 190000,
+                priceText: '190.000đ/buổi',
+                isTopBoosted: false,
+                phone: '0972.119.840',
+                isMine: false,
+                desc: 'Lấy lại gốc nhanh trong 1 tháng, mẹo giải nhanh trắc nghiệm.'
+            },
+            {
+                id: 'ng6',
+                name: 'Hoàng Gia Huy',
+                credentials: 'Kiện tướng Cờ vua • HLV Tự do',
+                avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=250&q=80',
+                photos: [
+                    { url: 'https://images.unsplash.com/photo-1529699211952-734e80c4d42b?auto=format&fit=crop&w=600&q=80', label: 'Thực chiến phân tích cờ' }
+                ],
+                earnedBadges: ['🏆 HCV Cờ Vua Mở Rộng', '🎨 Năng Khiếu Thực Tế'],
+                subjects: ['Năng khiếu'],
+                grades: ['Năng khiếu', 'Tiểu học', 'THCS'],
+                teachSummary: 'Cờ vua tư duy chiến thuật (Cơ bản & Nâng cao)',
+                city: 'Hà Nội',
+                supportOnline: true,
+                areaDetail: 'Thanh Xuân (Hà Nội) & Online',
+                price: 170000,
+                priceText: '170.000đ/buổi',
+                isTopBoosted: false,
+                phone: '0904.518.920',
+                isMine: false,
+                desc: 'Rèn tư duy tính toán qua từng ván đấu thực tế.'
+            }
+        ];
+
+        // 3. Danh sách Tin Cần Học
+        const classesList = [
+            {
+                id: 'lop1',
+                title: 'Tìm người hướng dẫn Thiết kế Illustrator & Edit Video ngắn',
+                learnerName: 'Nguyễn Minh Khôi (SV ĐH Đông Á)',
+                photo: 'https://images.unsplash.com/photo-1626785774573-4b799315345d?auto=format&fit=crop&w=600&q=80',
+                subjects: ['Tin học & Kỹ năng', 'Năng khiếu'],
+                grades: ['Kỹ năng & Đi làm'],
+                city: 'Đà Nẵng',
+                supportOnline: true,
+                areaDetail: 'Hải Châu, Đà Nẵng hoặc Online',
+                price: 160000,
+                priceText: '160.000đ/buổi',
+                schedule: '2 buổi/tuần (Tối T3 - T5)',
+                isTopBoosted: true,
+                phone: '0905.882.194',
+                isMine: true,
+                desc: 'Cần bạn có kinh nghiệm thực tế chỉ dẫn 1-1 làm poster.'
+            },
+            {
+                id: 'lop2',
+                title: 'Người đi làm tìm bạn dạy Đàn Guitar đệm hát cơ bản',
+                learnerName: 'Anh Minh Tuấn (Nhân viên văn phòng)',
+                photo: 'https://images.unsplash.com/photo-1510915361894-db8b60106cb1?auto=format&fit=crop&w=600&q=80',
+                subjects: ['Năng khiếu'],
+                grades: ['Năng khiếu', 'Kỹ năng & Đi làm'],
+                city: 'TP.HCM',
+                supportOnline: false,
+                areaDetail: 'Quận 7, TP. Hồ Chí Minh',
+                price: 200000,
+                priceText: '200.000đ/buổi',
+                schedule: 'Cuối tuần (T7 - CN)',
+                isTopBoosted: true,
+                phone: '0918.229.401',
+                isMine: false,
+                desc: 'Đã có sẵn đàn ở nhà, cần người có năng khiếu chỉ dẫn.'
+            },
+            {
+                id: 'lop3',
+                title: 'Tìm người kèm Tiếng Trung giao tiếp đàm phán nguồn hàng',
+                learnerName: 'Chị Hoàng Yến (Kinh doanh tự do)',
+                photo: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=600&q=80',
+                subjects: ['Ngoại ngữ'],
+                grades: ['Kỹ năng & Đi làm'],
+                city: 'Hà Nội',
+                supportOnline: true,
+                areaDetail: 'Cầu Giấy, Hà Nội hoặc Online',
+                price: 180000,
+                priceText: '180.000đ/buổi',
+                schedule: '3 buổi/tuần (20h00)',
+                isTopBoosted: false,
+                phone: '0989.304.712',
+                isMine: false,
+                desc: 'Chỉ cần giao tiếp tốt hoặc từng đặt hàng thực tế.'
+            },
+            {
+                id: 'lop4',
+                title: 'Tìm người kèm Toán & Lý Lớp 9 (Gần ĐH Đông Á)',
+                learnerName: 'Chị Thu Hà',
+                photo: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=600&q=80',
+                subjects: ['Toán - Lý - Hóa'],
+                grades: ['THCS'],
+                city: 'Đà Nẵng',
+                supportOnline: false,
+                areaDetail: 'Hải Châu, Đà Nẵng',
+                price: 150000,
+                priceText: '150.000đ/buổi',
+                schedule: '3 buổi/tuần (T2 - T4 - T6)',
+                isTopBoosted: false,
+                phone: '0903.551.892',
+                isMine: false,
+                desc: 'Cần bạn nắm vững kiến thức Toán - Lý cấp 2 kèm tại nhà.'
+            }
+        ];
+
+        // 4. Chuyển đổi giữa các Tab
+        function switchMainTab(tab) {
+            currentTab = tab;
+            const feedSec = document.getElementById('feedSection');
+            const accSec = document.getElementById('accountSection');
+
+            const tabs = {
+                tutors: document.getElementById('tabBtnTutors'),
+                classes: document.getElementById('tabBtnClasses'),
+                saved: document.getElementById('tabBtnSaved'),
+                account: document.getElementById('tabBtnAccount')
+            };
+
+            Object.keys(tabs).forEach(k => {
+                if (k === tab) {
+                    tabs[k].className = 'px-3.5 py-1.5 rounded-xl text-xs font-bold bg-blue-600 text-white shadow-2xs transition flex items-center gap-1.5 shrink-0';
+                } else {
+                    tabs[k].className = 'px-3.5 py-1.5 rounded-xl text-xs font-bold bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 transition flex items-center gap-1.5 shrink-0';
+                }
+            });
+
+            if (tab === 'account') {
+                feedSec.classList.add('hidden');
+                accSec.classList.remove('hidden');
+                renderAccountPage();
+            } else {
+                accSec.classList.add('hidden');
+                feedSec.classList.remove('hidden');
+                renderActiveFeed();
+            }
+            lucide.createIcons();
+        }
+
+        function quickSelectSubject(subj) {
+            selectedSubject = subj;
+            document.querySelectorAll('.subj-pill').forEach(btn => {
+                if (btn.getAttribute('data-subj') === subj) {
+                    btn.className = 'subj-pill px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-800 text-white transition';
+                } else {
+                    btn.className = 'subj-pill px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 transition';
+                }
+            });
+            if (currentTab === 'account') switchMainTab('tutors');
+            else renderActiveFeed();
+        }
+
+        function syncSearchAndRender(val) {
+            searchKeyword = val.trim().toLowerCase();
+            const topIn = document.getElementById('topSearchInput');
+            const mobIn = document.getElementById('mobileSearchInput');
+            if (topIn && topIn.value !== val) topIn.value = val;
+            if (mobIn && mobIn.value !== val) mobIn.value = val;
+            if (currentTab === 'account') switchMainTab('tutors');
+            else renderActiveFeed();
+        }
+
+        function resetAllFilters() {
+            selectedSubject = 'all';
+            searchKeyword = '';
+            document.getElementById('filterCity').value = 'all';
+            document.getElementById('filterDistrictInput').value = '';
+            document.getElementById('filterGrade').value = 'all';
+            document.getElementById('filterPrice').value = 'all';
+            const topIn = document.getElementById('topSearchInput');
+            const mobIn = document.getElementById('mobileSearchInput');
+            if (topIn) topIn.value = '';
+            if (mobIn) mobIn.value = '';
+            quickSelectSubject('all');
+        }
+
+        // 5. Lọc và hiển thị danh sách thẻ bài đăng
+        function filterItemCommon(item, isTutor) {
+            const cityVal = document.getElementById('filterCity').value;
+            const districtVal = document.getElementById('filterDistrictInput').value.trim().toLowerCase();
+            const gradeVal = document.getElementById('filterGrade').value;
+            const priceVal = document.getElementById('filterPrice').value;
+
+            if (selectedSubject !== 'all' && !item.subjects.includes(selectedSubject)) return false;
+
+            if (cityVal !== 'all') {
+                if (cityVal === 'Online') {
+                    if (!item.supportOnline && item.city !== 'Online') return false;
+                } else if (item.city !== cityVal) {
+                    return false;
+                }
+            }
+
+            if (districtVal && !item.areaDetail.toLowerCase().includes(districtVal)) return false;
+            if (gradeVal !== 'all' && !item.grades.includes(gradeVal)) return false;
+
+            if (priceVal === 'low' && item.price >= 160000) return false;
+            if (priceVal === 'mid' && (item.price < 160000 || item.price > 200000)) return false;
+            if (priceVal === 'high' && item.price <= 200000) return false;
+
+            if (searchKeyword) {
+                const textPool = isTutor
+                    ? `${item.name} ${item.credentials} ${item.teachSummary} ${item.areaDetail} ${(item.earnedBadges || []).join(' ')}`.toLowerCase()
+                    : `${item.title} ${item.learnerName} ${item.areaDetail} ${item.desc}`.toLowerCase();
+                if (!textPool.includes(searchKeyword)) return false;
+            }
+            return true;
+        }
+
+        function renderActiveFeed() {
+            const container = document.getElementById('cardsGridContainer');
+            const countEl = document.getElementById('feedResultCount');
+            const headline = document.getElementById('feedHeadline');
+
+            document.getElementById('countTutorsBadge').textContent = tutorsList.length;
+            document.getElementById('countClassesBadge').textContent = classesList.length;
+            document.getElementById('countSavedBadge').textContent = savedIds.length;
+
+            if (currentTab === 'tutors') {
+                headline.textContent = 'Người dạy đa lĩnh vực — Chứng minh được năng lực nào nhận ngay Danh hiệu đó';
+                const list = tutorsList.filter(t => filterItemCommon(t, true));
+                countEl.textContent = `Hiển thị ${list.length} hồ sơ người dạy phù hợp`;
+                container.innerHTML = list.length
+                    ? list.map(renderTutorCardHtml).join('')
+                    : `<div class="col-span-full bg-white rounded-2xl p-8 text-center border border-slate-200 text-xs text-slate-500">Không tìm thấy kết quả phù hợp. Hãy bấm "Đặt lại" bộ lọc!</div>`;
+            } else if (currentTab === 'classes') {
+                headline.textContent = 'Bảng tin Người cần học — Liên hệ trực tiếp, 0đ phí môi giới';
+                const list = classesList.filter(c => filterItemCommon(c, false));
+                countEl.textContent = `Hiển thị ${list.length} tin tìm người dạy`;
+                container.innerHTML = list.length
+                    ? list.map(renderClassCardHtml).join('')
+                    : `<div class="col-span-full bg-white rounded-2xl p-8 text-center border border-slate-200 text-xs text-slate-500">Chưa có tin phù hợp bộ lọc.</div>`;
+            } else if (currentTab === 'saved') {
+                headline.textContent = 'Danh sách bài đăng bạn đã lưu';
+                const savedTutors = tutorsList.filter(t => savedIds.includes(t.id)).map(renderTutorCardHtml);
+                const savedClasses = classesList.filter(c => savedIds.includes(c.id)).map(renderClassCardHtml);
+                const allSaved = [...savedTutors, ...savedClasses];
+                countEl.textContent = `Đã lưu ${allSaved.length} mục`;
+                container.innerHTML = allSaved.length
+                    ? allSaved.join('')
+                    : `<div class="col-span-full bg-white rounded-2xl p-8 text-center border border-slate-200 text-xs text-slate-500">Bạn chưa lưu bài đăng nào. Hãy bấm biểu tượng trái tim trên các bài đăng!</div>`;
+            }
+            lucide.createIcons();
+        }
+
+        // Hiển thị cụm ảnh linh hoạt (0 ảnh, 1 ảnh hoặc 2+ ảnh đều tự căn đẹp mắt)
+        function renderFlexiblePhotosHtml(photos, fallbackName) {
+            if (!photos || photos.length === 0) {
+                return '';
+            }
+            if (photos.length === 1) {
+                const p = photos[0];
+                return `
+                    <div onclick="openProofLightbox('${p.url}', '${p.label || fallbackName}', 'Hình ảnh đính kèm')" class="relative h-40 bg-slate-100 cursor-pointer group overflow-hidden">
+                        <img src="${p.url}" onerror="this.src='https://placehold.co/600x400/2563eb/ffffff?text=Hinh+Anh'" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" alt="Photo">
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent"></div>
+                        <span class="absolute bottom-2 left-3 text-[11px] font-bold text-white truncate">${p.label || 'Xem ảnh phóng to'}</span>
+                    </div>
+                `;
+            }
+            const p1 = photos[0];
+            const p2 = photos[1];
+            return `
+                <div class="grid grid-cols-2 gap-1 p-1.5 bg-slate-100">
+                    <div onclick="openProofLightbox('${p1.url}', '${p1.label || fallbackName}', 'Hình ảnh đính kèm')" class="relative h-36 rounded-xl overflow-hidden cursor-pointer group">
+                        <img src="${p1.url}" onerror="this.src='https://placehold.co/600x400/2563eb/ffffff?text=Anh+1'" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" alt="Photo 1">
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent"></div>
+                        <span class="absolute bottom-1.5 left-2 right-2 text-[10px] font-bold text-white truncate">${p1.label || 'Ảnh đính kèm 1'}</span>
+                    </div>
+                    <div onclick="openProofLightbox('${p2.url}', '${p2.label || fallbackName}', 'Minh chứng / Ảnh đính kèm')" class="relative h-36 rounded-xl overflow-hidden cursor-pointer group">
+                        <img src="${p2.url}" onerror="this.src='https://placehold.co/600x400/059669/ffffff?text=Anh+2'" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" alt="Photo 2">
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent"></div>
+                        <span class="absolute bottom-1.5 left-2 right-2 text-[10px] font-bold text-amber-200 truncate">${p2.label || 'Ảnh đính kèm 2'}</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderTutorCardHtml(t) {
+            const isSaved = savedIds.includes(t.id);
+            const badgesHtml = (t.earnedBadges || []).map(b => `
+                <span class="inline-flex items-center text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-900 border border-amber-200">
+                    ${b}
+                </span>
+            `).join('');
+
+            return `
+                <div class="bg-white rounded-2xl overflow-hidden border ${t.isTopBoosted ? 'border-amber-300 ring-1 ring-amber-200/60' : 'border-slate-200'} shadow-xs hover:shadow-md transition flex flex-col justify-between">
+                    <div>
+                        ${renderFlexiblePhotosHtml(t.photos, t.name)}
+
+                        <div class="p-4 pb-2">
+                            <div class="flex items-center justify-between gap-2 mb-2">
+                                <div class="flex flex-wrap gap-1">
+                                    ${t.isTopBoosted ? `<span class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-blue-600 text-white">⚡ TOP</span>` : ''}
+                                    ${badgesHtml}
+                                </div>
+                                <button onclick="toggleSaveItem('${t.id}')" class="w-7 h-7 rounded-full bg-slate-100 hover:bg-rose-50 flex items-center justify-center shrink-0">
+                                    <i data-lucide="heart" class="w-3.5 h-3.5 ${isSaved ? 'fill-rose-500 text-rose-500' : 'text-slate-500'}"></i>
+                                </button>
+                            </div>
+
+                            <div class="flex items-center gap-3">
+                                <img src="${t.avatar}" onerror="this.src='https://placehold.co/100x100/2563eb/ffffff?text=AV'" class="w-11 h-11 rounded-full object-cover border-2 border-blue-500 shrink-0" alt="${t.name}">
+                                <div class="min-w-0">
+                                    <h3 class="font-extrabold text-sm sm:text-base text-slate-900 truncate">${t.name}</h3>
+                                    <p class="text-xs font-semibold text-blue-600 truncate">${t.credentials}</p>
+                                </div>
+                            </div>
+
+                            <div class="mt-2.5 flex flex-wrap gap-1.5 text-[11px]">
+                                <span class="bg-slate-100 text-slate-800 font-bold px-2.5 py-1 rounded-lg">🎯 ${t.teachSummary}</span>
+                                <span class="bg-slate-50 text-slate-500 font-medium px-2.5 py-1 rounded-lg border border-slate-200/80">📍 ${t.areaDetail}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="px-4 py-3 mt-1 border-t border-slate-100 flex items-center justify-between gap-2 bg-slate-50/50">
+                        <div>
+                            <span class="text-[10px] text-slate-400 block">Học phí trực tiếp</span>
+                            <span class="text-sm sm:text-base font-extrabold text-emerald-600">${t.priceText}</span>
+                        </div>
+                        <button onclick="openItemDetail('tutor', '${t.id}')" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-xs transition">
+                            Xem & Liên hệ
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderClassCardHtml(c) {
+            const isSaved = savedIds.includes(c.id);
+            const photoSection = c.photo ? `
+                <div onclick="openProofLightbox('${c.photo}', '${c.title}', 'Ảnh bài đăng cần học')" class="relative h-36 bg-slate-100 cursor-pointer overflow-hidden group">
+                    <img src="${c.photo}" onerror="this.src='https://placehold.co/600x350/059669/ffffff?text=Can+Hoc'" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" alt="${c.title}">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950/75 via-slate-950/20 to-transparent"></div>
+                    <div class="absolute bottom-2 left-3 right-3 text-white">
+                        <p class="text-[11px] font-semibold text-emerald-300">👤 ${c.learnerName}</p>
+                        <h3 class="font-extrabold text-sm leading-snug line-clamp-1">${c.title}</h3>
+                    </div>
+                </div>
+            ` : `
+                <div class="p-4 pb-0">
+                    <p class="text-[11px] font-bold text-emerald-600">👤 ${c.learnerName}</p>
+                    <h3 class="font-extrabold text-sm text-slate-900 mt-0.5">${c.title}</h3>
+                </div>
+            `;
+
+            return `
+                <div class="bg-white rounded-2xl overflow-hidden border ${c.isTopBoosted ? 'border-amber-300 ring-1 ring-amber-200/60' : 'border-slate-200'} shadow-xs hover:shadow-md transition flex flex-col justify-between">
+                    <div>
+                        ${photoSection}
+                        <div class="p-4 pb-2 space-y-2">
+                            <div class="flex items-center justify-between">
+                                <div class="flex flex-wrap gap-1.5 text-[11px]">
+                                    <span class="bg-blue-50 text-blue-800 font-bold px-2.5 py-1 rounded-lg">🗓️ ${c.schedule}</span>
+                                    <span class="bg-slate-100 text-slate-700 font-semibold px-2.5 py-1 rounded-lg">📍 ${c.areaDetail}</span>
+                                </div>
+                                <button onclick="toggleSaveItem('${c.id}')" class="w-7 h-7 rounded-full bg-slate-100 hover:bg-rose-50 flex items-center justify-center shrink-0">
+                                    <i data-lucide="heart" class="w-3.5 h-3.5 ${isSaved ? 'fill-rose-500 text-rose-500' : 'text-slate-500'}"></i>
+                                </button>
+                            </div>
+                            <p class="text-xs text-slate-500 line-clamp-1">${c.desc}</p>
+                        </div>
+                    </div>
+
+                    <div class="px-4 py-3 mt-1 border-t border-slate-100 flex items-center justify-between gap-2 bg-slate-50/50">
+                        <div>
+                            <span class="text-[10px] text-slate-400 block">0đ phí nhận lớp</span>
+                            <span class="text-sm sm:text-base font-extrabold text-emerald-600">${c.priceText}</span>
+                        </div>
+                        <button onclick="openItemDetail('class', '${c.id}')" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-xs transition">
+                            Nhận dạy ngay
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 6. Lưu bài yêu thích
+        function toggleSaveItem(id) {
+            if (savedIds.includes(id)) {
+                savedIds = savedIds.filter(x => x !== id);
+                showToast('Đã bỏ lưu bài đăng');
+            } else {
+                savedIds.push(id);
+                showToast('❤️ Đã lưu vào danh sách yêu thích');
+            }
+            renderActiveFeed();
+        }
+
+        // 7. Mở Modal chi tiết
+        function openItemDetail(type, id) {
+            const modal = document.getElementById('detailModal');
+            const body = document.getElementById('detailModalBody');
+            const badge = document.getElementById('detailModalBadge');
+
+            if (type === 'tutor') {
+                const t = tutorsList.find(x => x.id === id);
+                if (!t) return;
+                badge.textContent = 'Hồ sơ Người dạy • Liên hệ trực tiếp';
+                const badgesHtml = (t.earnedBadges || []).map(b => `
+                    <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-900 border border-amber-200">${b}</span>
+                `).join('');
+                const photosGrid = (t.photos && t.photos.length) ? `
+                    <div class="grid grid-cols-${t.photos.length > 1 ? '2' : '1'} gap-2">
+                        ${t.photos.map(p => `
+                            <div onclick="openProofLightbox('${p.url}', '${p.label || t.name}', 'Hình ảnh đính kèm')" class="border border-slate-200 rounded-xl overflow-hidden cursor-pointer">
+                                <img src="${p.url}" class="w-full h-32 object-cover">
+                                <div class="p-1.5 text-[11px] font-semibold text-slate-700 truncate">${p.label || 'Ảnh đính kèm'}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                ` : '';
+
+                body.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <img src="${t.avatar}" class="w-14 h-14 rounded-full object-cover border-2 border-blue-500">
+                        <div>
+                            <h3 class="text-base font-extrabold text-slate-900">${t.name}</h3>
+                            <p class="text-xs font-bold text-blue-600">${t.credentials}</p>
+                            <p class="text-xs text-slate-500">📍 ${t.areaDetail}</p>
+                        </div>
+                    </div>
+                    ${badgesHtml ? `<div class="flex flex-wrap gap-1.5">${badgesHtml}</div>` : ''}
+                    ${photosGrid}
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-1 text-xs">
+                        <div><strong>Môn nhận dạy:</strong> ${t.teachSummary}</div>
+                        <div><strong>Học phí:</strong> <span class="text-emerald-600 font-extrabold">${t.priceText}</span></div>
+                        <div class="text-slate-600">${t.desc}</div>
+                    </div>
+                    <div class="bg-blue-50 border border-blue-200 rounded-xl p-3.5 flex items-center justify-between gap-2">
+                        <div>
+                            <div class="text-[11px] font-bold text-blue-700">SĐT / Zalo liên hệ trực tiếp:</div>
+                            <div class="text-base font-extrabold text-slate-900">${t.phone}</div>
+                        </div>
+                        <div class="flex gap-1.5">
+                            <button onclick="showToast('Đang gọi ${t.phone}...')" class="px-3 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold">📞 Gọi điện</button>
+                            <button onclick="showToast('Đang mở Zalo ${t.phone}...')" class="px-3 py-2 bg-blue-600 text-white rounded-xl text-xs font-bold">💬 Zalo</button>
+                        </div>
+                    </div>
+                `;
+            } else {
+                const c = classesList.find(x => x.id === id);
+                if (!c) return;
+                badge.textContent = 'Tin tìm người dạy • 0đ phí nhận lớp';
+                body.innerHTML = `
+                    ${c.photo ? `<img src="${c.photo}" class="w-full h-40 object-cover rounded-xl border border-slate-200">` : ''}
+                    <div>
+                        <h3 class="text-base font-extrabold text-slate-900">${c.title}</h3>
+                        <p class="text-xs font-bold text-blue-600 mt-1">👤 Người đăng: ${c.learnerName}</p>
+                    </div>
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-1 text-xs">
+                        <div><strong>Học phí:</strong> <span class="text-emerald-600 font-extrabold">${c.priceText}</span></div>
+                        <div><strong>Thời gian & Khu vực:</strong> ${c.schedule} • 📍 ${c.areaDetail}</div>
+                        <div class="text-slate-600">${c.desc}</div>
+                    </div>
+                    <div class="bg-blue-50 border border-blue-200 rounded-xl p-3.5 flex items-center justify-between gap-2">
+                        <div>
+                            <div class="text-[11px] font-bold text-blue-700">SĐT / Zalo người học:</div>
+                            <div class="text-base font-extrabold text-slate-900">${c.phone}</div>
+                        </div>
+                        <div class="flex gap-1.5">
+                            <button onclick="showToast('Đang gọi ${c.phone}...')" class="px-3 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold">📞 Gọi ngay</button>
+                            <button onclick="showToast('Đang mở Zalo ${c.phone}...')" class="px-3 py-2 bg-blue-600 text-white rounded-xl text-xs font-bold">💬 Zalo</button>
+                        </div>
+                    </div>
+                `;
+            }
+            modal.classList.remove('hidden');
+        }
+
+        function closeDetailModal() {
+            document.getElementById('detailModal').classList.add('hidden');
+        }
+
+        // 8. Lightbox xem ảnh phóng to
+        function openProofLightbox(imgSrc, titleText, badgeText) {
+            document.getElementById('lightboxImg').src = imgSrc;
+            document.getElementById('lightboxTitle').textContent = titleText || 'Hình ảnh đính kèm';
+            document.getElementById('lightboxBadge').textContent = badgeText || 'Hình ảnh';
+            document.getElementById('proofLightboxModal').classList.remove('hidden');
+        }
+
+        function closeProofLightbox() {
+            document.getElementById('proofLightboxModal').classList.add('hidden');
+        }
+
+        // 9. Quản lý Tài khoản & Danh hiệu
+        function renderSidebarBadges() {
+            const box = document.getElementById('sidebarBadgesList');
+            if (!box) return;
+            box.innerHTML = userAccount.proofs.map(pr => `
+                <span class="text-[10px] bg-amber-50 text-amber-900 border border-amber-200 font-bold px-2 py-0.5 rounded-lg">${pr.badge}</span>
+            `).join('');
+        }
+
+        function renderUserProofGallery() {
+            const gallery = document.getElementById('userProofGallery');
+            if (!gallery) return;
+            gallery.innerHTML = userAccount.proofs.map(pr => `
+                <div onclick="openProofLightbox('${pr.img}', '${pr.title}', '${pr.badge}')" class="cursor-pointer rounded-xl overflow-hidden border border-slate-200 bg-white hover:shadow-sm transition">
+                    <div class="relative h-24 bg-slate-100">
+                        <img src="${pr.img}" onerror="this.src='https://placehold.co/400x300/2563eb/ffffff?text=Minh+Chung'" class="w-full h-full object-cover">
+                        <span class="absolute top-1.5 left-1.5 bg-amber-400 text-slate-950 text-[10px] font-extrabold px-2 py-0.5 rounded shadow">${pr.badge}</span>
+                    </div>
+                    <div class="p-2 text-[11px] font-semibold text-slate-700 truncate">${pr.title}</div>
+                </div>
+            `).join('');
+            renderSidebarBadges();
+        }
+
+        function renderAccountPage() {
+            document.getElementById('accPageAvatar').src = userAccount.avatar;
+            document.getElementById('accPageName').textContent = userAccount.name;
+            document.getElementById('accPageSubInfo').textContent = userAccount.subInfo;
+
+            document.getElementById('profileInputName').value = userAccount.name;
+            document.getElementById('profileInputPhone').value = userAccount.phone;
+            document.getElementById('profileInputSchool').value = userAccount.school;
+            document.getElementById('profileInputArea').value = userAccount.area;
+
+            renderUserProofGallery();
+
+            const myPostsBox = document.getElementById('myPostsContainer');
+            const myTutors = tutorsList.filter(t => t.isMine);
+            const myClasses = classesList.filter(c => c.isMine);
+
+            myPostsBox.innerHTML = [
+                ...myTutors.map(p => `
+                    <div class="p-3 rounded-xl border border-slate-200 bg-slate-50 flex items-center justify-between gap-2">
+                        <div class="min-w-0">
+                            <span class="text-[10px] bg-blue-100 text-blue-800 font-bold px-2 py-0.5 rounded">Bài nhận dạy</span>
+                            <div class="font-bold text-xs text-slate-900 truncate mt-1">${p.teachSummary}</div>
+                            <div class="text-[11px] text-emerald-600 font-bold">${p.priceText}</div>
+                        </div>
+                        <button onclick="payBoost15k()" class="px-3 py-1.5 bg-amber-400 hover:bg-amber-500 text-slate-950 font-bold text-xs rounded-lg shrink-0">⚡ Đẩy Top</button>
+                    </div>
+                `),
+                ...myClasses.map(c => `
+                    <div class="p-3 rounded-xl border border-slate-200 bg-slate-50 flex items-center justify-between gap-2">
+                        <div class="min-w-0">
+                            <span class="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded">Tin tìm người dạy</span>
+                            <div class="font-bold text-xs text-slate-900 truncate mt-1">${c.title}</div>
+                            <div class="text-[11px] text-emerald-600 font-bold">${c.priceText}</div>
+                        </div>
+                        <button onclick="payBoost15k()" class="px-3 py-1.5 bg-amber-400 hover:bg-amber-500 text-slate-950 font-bold text-xs rounded-lg shrink-0">⚡ Đẩy Top</button>
+                    </div>
+                `)
+            ].join('');
+        }
+
+        function handleAvatarChange(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                userAccount.avatar = e.target.result;
+                document.getElementById('headerAvatar').src = e.target.result;
+                document.getElementById('sidebarAvatar').src = e.target.result;
+                document.getElementById('accPageAvatar').src = e.target.result;
+                showToast('📷 Đã cập nhật ảnh đại diện!');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function handleAccountProofUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const badge = document.getElementById('newProofBadgeType').value;
+                const title = document.getElementById('newProofTitleInput').value.trim() || `Minh chứng ${badge}`;
+                userAccount.proofs.unshift({ badge, title, img: e.target.result });
+                if (tutorsList[0] && tutorsList[0].isMine) {
+                    if (!tutorsList[0].earnedBadges.includes(badge)) tutorsList[0].earnedBadges.unshift(badge);
+                    tutorsList[0].photos.unshift({ url: e.target.result, label: title });
+                }
+                renderUserProofGallery();
+                showToast(`🏅 Đã thêm ảnh và nhận Danh hiệu "${badge}"!`);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function addQuickSampleProof() {
+            const badge = document.getElementById('newProofBadgeType').value;
+            const title = document.getElementById('newProofTitleInput').value.trim() || `Chứng nhận ${badge}`;
+            const randomImg = samplePhotosPool[Math.floor(Math.random() * samplePhotosPool.length)];
+            userAccount.proofs.unshift({ badge, title, img: randomImg });
+            if (tutorsList[0] && tutorsList[0].isMine && !tutorsList[0].earnedBadges.includes(badge)) {
+                tutorsList[0].earnedBadges.unshift(badge);
+            }
+            document.getElementById('newProofTitleInput').value = '';
+            renderUserProofGallery();
+            showToast(`🏅 Đã cấp ngay Danh hiệu "${badge}"!`);
+        }
+
+        function saveUserProfile() {
+            userAccount.name = document.getElementById('profileInputName').value.trim() || userAccount.name;
+            userAccount.phone = document.getElementById('profileInputPhone').value.trim() || userAccount.phone;
+            userAccount.school = document.getElementById('profileInputSchool').value.trim() || userAccount.school;
+            userAccount.area = document.getElementById('profileInputArea').value.trim() || userAccount.area;
+            userAccount.subInfo = `${userAccount.school} • SĐT/Zalo: ${userAccount.phone}`;
+
+            document.getElementById('sidebarName').textContent = userAccount.name;
+            document.getElementById('sidebarSchool').textContent = userAccount.school;
+            document.getElementById('accPageName').textContent = userAccount.name;
+            document.getElementById('accPageSubInfo').textContent = userAccount.subInfo;
+            showToast('✅ Đã lưu thông tin cá nhân!');
+        }
+
+        // 10. Đăng bài mới (Ảnh hoàn toàn tùy chọn, người dùng tự quyết)
+        function renderOptionalPostPhotosPreview() {
+            const row = document.getElementById('optionalPhotosPreviewRow');
+            if (!row) return;
+            if (tempPostPhotos.length === 0) {
+                row.innerHTML = `<span class="text-[11px] text-slate-400 italic py-2">Không đính kèm ảnh (Bài đăng vẫn hiển thị đẹp gọn gàng)</span>`;
+                return;
+            }
+            row.innerHTML = tempPostPhotos.map((src, idx) => `
+                <div class="relative w-20 h-16 rounded-lg overflow-hidden border border-slate-300 shrink-0">
+                    <img src="${src}" class="w-full h-full object-cover">
+                    <button type="button" onclick="removeTempPhoto(${idx})" class="absolute top-0.5 right-0.5 w-5 h-5 rounded-full bg-slate-900/80 text-white text-[10px] flex items-center justify-center">✕</button>
+                </div>
+            `).join('');
+        }
+
+        function removeTempPhoto(idx) {
+            tempPostPhotos.splice(idx, 1);
+            renderOptionalPostPhotosPreview();
+        }
+
+        function clearOptionalPostPhotos() {
+            tempPostPhotos = [];
+            renderOptionalPostPhotosPreview();
+        }
+
+        function useRandomSamplePhotos() {
+            const p1 = samplePhotosPool[Math.floor(Math.random() * samplePhotosPool.length)];
+            const p2 = samplePhotosPool[Math.floor(Math.random() * samplePhotosPool.length)];
+            tempPostPhotos = [p1, p2];
+            renderOptionalPostPhotosPreview();
+        }
+
+        function handleOptionalPostPhotoUpload(event) {
+            const files = Array.from(event.target.files);
+            if (!files.length) return;
+            files.forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    tempPostPhotos.unshift(e.target.result);
+                    renderOptionalPostPhotosPreview();
+                };
+                reader.readAsDataURL(file);
+            });
+            showToast('📷 Đã thêm ảnh của bạn vào bài đăng!');
+        }
+
+        function togglePostTypeUI() {
+            const type = document.getElementById('postTypeSelect').value;
+            const badgeSec = document.getElementById('badgeSelectorSection');
+            if (type === 'class') badgeSec.classList.add('hidden');
+            else badgeSec.classList.remove('hidden');
+        }
+
+        function openPostModal() {
+            document.getElementById('postName').value = userAccount.name;
+            document.getElementById('postPhone').value = userAccount.phone;
+            renderOptionalPostPhotosPreview();
+            togglePostTypeUI();
+            document.getElementById('postModal').classList.remove('hidden');
+        }
+
+        function openPostModalWithType(type) {
+            openPostModal();
+            document.getElementById('postTypeSelect').value = type;
+            togglePostTypeUI();
+        }
+
+        function closePostModal() {
+            document.getElementById('postModal').classList.add('hidden');
+        }
+
+        function submitNewListing(e) {
+            e.preventDefault();
+            const type = document.getElementById('postTypeSelect').value;
+            const name = document.getElementById('postName').value.trim();
+            const phone = document.getElementById('postPhone').value.trim();
+            const skillTitle = document.getElementById('postSchoolOrSchedule').value.trim();
+            const desc = document.getElementById('postDesc').value.trim();
+            const subject = document.getElementById('postSubject').value;
+            const city = document.getElementById('postCity').value;
+            const price = parseInt(document.getElementById('postPrice').value, 10);
+            const areaInput = document.getElementById('postAreaDetail').value.trim();
+
+            const priceFormatted = price.toLocaleString('vi-VN') + 'đ/buổi';
+            const fullArea = city === 'Online' ? `Online Toàn quốc (${areaInput})` : `${areaInput}, ${city}`;
+
+            if (type === 'tutor') {
+                const checkedBadges = Array.from(document.querySelectorAll('input[name="earnedBadges"]:checked')).map(cb => cb.value);
+                const photoObjs = tempPostPhotos.map((url, i) => ({
+                    url,
+                    label: i === 0 ? skillTitle : desc
+                }));
+
+                tutorsList.unshift({
+                    id: 'ng_' + Date.now(),
+                    name,
+                    credentials: desc,
+                    avatar: userAccount.avatar,
+                    photos: photoObjs,
+                    earnedBadges: checkedBadges,
+                    subjects: [subject],
+                    grades: ['Năng khiếu', 'Kỹ năng & Đi làm', 'THPT & Đại học'],
+                    teachSummary: skillTitle,
+                    city,
+                    supportOnline: true,
+                    areaDetail: fullArea,
+                    price,
+                    priceText: priceFormatted,
+                    isTopBoosted: true,
+                    phone,
+                    isMine: true,
+                    desc
+                });
+                closePostModal();
+                switchMainTab('tutors');
+                showToast('🎉 Đã đăng bài nhận dạy mới thành công!');
+            } else {
+                classesList.unshift({
+                    id: 'lop_' + Date.now(),
+                    title: skillTitle,
+                    learnerName: name,
+                    photo: tempPostPhotos[0] || '',
+                    subjects: [subject],
+                    grades: ['Năng khiếu', 'Kỹ năng & Đi làm'],
+                    city,
+                    supportOnline: true,
+                    areaDetail: fullArea,
+                    price,
+                    priceText: priceFormatted,
+                    schedule: 'Linh hoạt trao đổi',
+                    isTopBoosted: true,
+                    phone,
+                    isMine: true,
+                    desc
+                });
+                closePostModal();
+                switchMainTab('classes');
+                showToast('🎉 Đã đăng tin tìm người dạy thành công!');
+            }
+        }
+
+        // 11. Ví & Đẩy bài 15k
+        function updateWalletUI() {
+            const formatted = walletBalance.toLocaleString('vi-VN') + 'đ';
+            document.getElementById('headerWalletBalance').textContent = formatted;
+            document.getElementById('sidebarWalletBalance').textContent = formatted;
+            document.getElementById('modalWalletBalance').textContent = formatted;
+            document.getElementById('freeBoostCountText').textContent = freeBoostLeft;
+        }
+
+        function openWalletModal() {
+            updateWalletUI();
+            document.getElementById('walletModal').classList.remove('hidden');
+        }
+
+        function closeWalletModal() {
+            document.getElementById('walletModal').classList.add('hidden');
+        }
+
+        function topUpWallet50k() {
+            walletBalance += 50000;
+            updateWalletUI();
+            showToast('💰 Đã nạp thêm 50.000đ vào Ví NextGen!');
+        }
+
+        function payBoost15k() {
+            if (freeBoostLeft > 0) {
+                freeBoostLeft -= 1;
+                updateWalletUI();
+                showToast(`⚡ Đã đẩy bài lên Top bằng lượt miễn phí (Còn ${freeBoostLeft} lượt)!`);
+            } else if (walletBalance >= 15000) {
+                walletBalance -= 15000;
+                updateWalletUI();
+                showToast('⚡ Đã trừ 15.000đ và đẩy bài của bạn lên đầu trang!');
+            } else {
+                openWalletModal();
+                showToast('Số dư Ví không đủ 15.000đ, hãy nạp thêm nhé!');
+            }
+        }
+
+        function showToast(msg) {
+            const box = document.getElementById('toastBox');
+            document.getElementById('toastMessage').textContent = msg;
+            box.classList.remove('hidden');
+            clearTimeout(window._toastTimer);
+            window._toastTimer = setTimeout(() => {
+                box.classList.add('hidden');
+            }, 3000);
+        }
+
+        // Khởi chạy ứng dụng khi tải trang
+        window.onload = function () {
+            renderSidebarBadges();
+            renderActiveFeed();
+            updateWalletUI();
+            lucide.createIcons();
+        };
+    </script>
+</body>
+</html>
